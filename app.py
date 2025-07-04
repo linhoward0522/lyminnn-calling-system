@@ -2,9 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # 允許跨來源請求（給前端使用）
+CORS(app)
 
-# 儲存叫號範圍
 current_range = {"start": 0, "end": 0}
 
 @app.route('/status', methods=['GET'])
@@ -19,4 +18,4 @@ def update_status():
     return jsonify({"success": True, "current_range": current_range})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
