@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>叫號設定</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 2em; text-align: center; }
+    input { font-size: 1.2em; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h2>🔧 設定叫號範圍</h2>
+  <input type="number" id="start" placeholder="起始號碼">
+  <input type="number" id="end" placeholder="結束號碼">
+  <br>
+  <button onclick="updateRange()">更新</button>
+  <p id="result"></p>
+
+  <script>
+    async function updateRange() {
+      const start = document.getElementById("start").value;
+      const end = document.getElementById("end").value;
+
+      const res = await fetch("http://localhost:5000/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ start, end })
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerText = "更新成功！目前範圍：" + data.current_range.start + " ~ " + data.current_range.end;
+    }
+  </script>
+</body>
+</html>
