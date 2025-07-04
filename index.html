@@ -62,8 +62,15 @@
       }
     }
 
+    // 頁面載入時先呼叫一次
     fetchStatus();
-    setInterval(fetchStatus, 60000);
+
+    // 每 60 秒檢查一次，只有在頁面有焦點時才更新
+    setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchStatus();
+      }
+    }, 60000);
   </script>
 </body>
 </html>
