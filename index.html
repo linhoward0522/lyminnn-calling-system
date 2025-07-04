@@ -95,19 +95,40 @@
         document.getElementById("range").innerText = `${data.start} 號 ~ ${data.end} 號`;
         document.getElementById("lastUpdate").innerText = `最後更新時間：${formatTime(new Date())}`;
       } catch (error) {
-        document.getElementById("range").innerText = "連線錯誤，請稍後重試";
+        document.getElementById("range").innerText = "連線錯誤，請刷新頁面";
       }
     }
 
     // 頁面載入時先呼叫一次
     fetchStatus();
 
-    // 每 60 秒檢查一次，只有在頁面有焦點時才更新
-    setInterval(() => {
-      if (document.visibilityState === "visible") {
-        fetchStatus();
-      }
-    }, 60000);
+    // 定義定時器 ID
+    let intervalId = null;
+
+    // 當分頁可見時，馬上更新一次，並啟動每60秒更新
+    function handleVisibilityChange() {
+        if (document.visibilityState === "visible") {
+        fetchStatus(); // 馬上更新一次
+
+        // 清除舊的定時器，避免重複
+        if (intervalId) clearInterval(intervalId);
+
+        // 設定每60秒更新一次
+        intervalId = setInterval(fetchStatus, 60000);
+        } else {
+        // 分頁不可見時，停止定時更新，節省資源
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+        }
+    }
+
+    // 監聽分頁可見狀態改變
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // 頁面載入時執行一次
+    handleVisibilityChange();
   </script>
 </body>
 </html>
