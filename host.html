@@ -1,34 +1,138 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-  <title>叫號設定</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>哩咪 lyminnn 叫號系統 - 管理</title>
   <style>
-    body { font-family: Arial; padding: 2em; text-align: center; }
-    input { font-size: 1.2em; margin: 10px; }
+    body {
+      font-family: "Microsoft JhengHei", sans-serif;
+      text-align: center;
+      background-color: #fefefe;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #f2a6b3;
+      color: white;
+      padding: 20px 10px;
+      font-size: 2em;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-size: 1.2em;
+      margin-right: 10px;
+    }
+
+    input[type="number"] {
+      font-size: 1.2em;
+      padding: 5px 10px;
+      width: 80px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 20px;
+    }
+
+    button {
+      font-size: 1.2em;
+      background-color: #d95f76;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #c54d64;
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #333;
+    }
+
+    /* 手機螢幕 */
+    @media (max-width: 480px) {
+      header {
+        font-size: 1.5em;
+        padding: 15px 10px;
+      }
+      label, input[type="number"], button {
+        font-size: 1em;
+        margin: 5px 0;
+        width: 100%;
+      }
+      input[type="number"] {
+        width: auto;
+      }
+      button {
+        width: 100%;
+        padding: 12px 0;
+      }
+    }
+
+    /* 平板螢幕 */
+    @media (min-width: 481px) and (max-width: 768px) {
+      header {
+        font-size: 1.7em;
+        padding: 18px 10px;
+      }
+      label, input[type="number"], button {
+        font-size: 1.1em;
+      }
+      input[type="number"] {
+        width: 100px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>🔧 設定叫號範圍</h2>
-  <input type="number" id="start" placeholder="起始號碼">
-  <input type="number" id="end" placeholder="結束號碼">
-  <br>
-  <button onclick="updateRange()">更新</button>
-  <p id="result"></p>
+  <header>🎪 哩咪 lyminnn 叫號系統 - 管理</header>
+
+  <div>
+    <label for="start">起始號碼：</label>
+    <input id="start" type="number" min="0" />
+    <label for="end">結束號碼：</label>
+    <input id="end" type="number" min="0" />
+    <button onclick="updateRange()">設定範圍</button>
+  </div>
+
+  <div id="message"></div>
 
   <script>
     async function updateRange() {
-      const start = document.getElementById("start").value;
-      const end = document.getElementById("end").value;
+      const start = parseInt(document.getElementById('start').value);
+      const end = parseInt(document.getElementById('end').value);
 
-      const res = await fetch("https://lyminnn-callings-ystem.onrender.com/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ start, end })
-      });
+      if (isNaN(start) || isNaN(end)) {
+        document.getElementById('message').innerText = '請輸入有效數字';
+        return;
+      }
+      if (start > end) {
+        document.getElementById('message').innerText = '起始號碼不能大於結束號碼';
+        return;
+      }
 
-      const data = await res.json();
-      document.getElementById("result").innerText = "更新成功！目前範圍：" + data.current_range.start + " ~ " + data.current_range.end;
+      try {
+        const res = await fetch('https://lyminnn-callings-ystem.onrender.com/update', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({start, end})
+        });
+        if (res.ok) {
+          document.getElementById('message').innerText = '設定成功！';
+        } else {
+          document.getElementById('message').innerText = '設定失敗，請稍後重試';
+        }
+      } catch {
+        document.getElementById('message').innerText = '網路錯誤，請稍後再試';
+      }
     }
   </script>
 </body>
