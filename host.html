@@ -21,7 +21,7 @@
       const start = document.getElementById("start").value;
       const end = document.getElementById("end").value;
 
-      const res = await fetch("http://localhost:5000/update", {
+      const res = await fetch("https://lyminnn-callings-ystem.onrender.com/update", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ start, end })
