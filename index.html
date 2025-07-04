@@ -56,7 +56,7 @@
   <script>
     async function fetchStatus() {
       try {
-        const res = await fetch("https://lyminnn-callings-ystem.onrender.com/");
+        const res = await fetch("https://lyminnn-callings-ystem.onrender.com/status");
         const data = await res.json();
         document.getElementById("range").innerText = `${data.start} 號 ~ ${data.end} 號`;
       } catch (error) {
