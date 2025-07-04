@@ -50,13 +50,20 @@
 
   <h2>🐻 目前叫號</h2>
   <div id="range">載入中...</div>
+  <div id="lastUpdate">最後更新時間：-</div>
 
   <script>
+    function formatTime(date) {
+      const pad = (n) => (n < 10 ? '0' + n : n);
+      return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+
     async function fetchStatus() {
       try {
         const res = await fetch("https://lyminnn-callings-ystem.onrender.com/status");
         const data = await res.json();
         document.getElementById("range").innerText = `${data.start} 號 ~ ${data.end} 號`;
+        document.getElementById("lastUpdate").innerText = `最後更新時間：${formatTime(new Date())}`;
       } catch (error) {
         document.getElementById("range").innerText = "連線錯誤，請稍後重試";
       }
