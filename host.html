@@ -3,39 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>哩咪 lyminnn 叫號系統 - 管理</title>
+  <title>哩咪 lyminnn 叫號後台</title>
   <style>
     body {
       font-family: "Microsoft JhengHei", sans-serif;
-      text-align: center;
-      background-color: #fefefe;
+      background: #fff;
       margin: 0;
       padding: 20px;
+      text-align: center;
     }
-
     header {
-      background-color: #f2a6b3;
+      background: #f2a6b3;
       color: white;
-      padding: 20px 10px;
       font-size: 2em;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      padding: 20px;
       margin-bottom: 20px;
     }
-
-    label {
-      font-size: 1.2em;
-      margin-right: 10px;
-    }
-
-    input[type="number"] {
+    input {
       font-size: 1.2em;
       padding: 5px 10px;
-      width: 80px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-right: 10px;
+      margin: 5px;
     }
-
     button {
       font-size: 1.1em;
       background-color: #d95f76;
@@ -43,91 +31,125 @@
       border: none;
       padding: 10px 15px;
       border-radius: 10px;
-      cursor: pointer;
       margin: 5px;
+      cursor: pointer;
     }
-
     button:hover {
       background-color: #c54d64;
     }
-
+    #console {
+      display: none;
+    }
+    #login-box {
+      margin-top: 40px;
+    }
     #message {
       margin-top: 20px;
-      font-size: 1.1em;
-      color: #333;
-    }
-
-    @media (max-width: 480px) {
-      header {
-        font-size: 1.5em;
-        padding: 15px 10px;
-      }
-      input, button {
-        width: 100%;
-        margin: 10px 0;
-      }
+      font-size: 1em;
     }
   </style>
 </head>
 <body>
   <header>🎪 哩咪 lyminnn 管理後台</header>
 
-  <div>
-    <label for="start">起始號碼：</label>
-    <input id="start" type="number" min="0" />
-    <label for="end">結束號碼：</label>
-    <input id="end" type="number" min="0" />
-    <button onclick="updateRange()">設定範圍</button>
+  <!-- 登入畫面 -->
+  <div id="login-box">
+    <h2>🔐 請輸入管理密碼</h2>
+    <input type="password" id="password" placeholder="請輸入密碼" />
+    <button onclick="login()">登入</button>
+    <div id="login-msg" style="color:red;"></div>
   </div>
 
-  <div style="margin-top: 20px;">
-    <button onclick="toggleQuery(true)">✅ 開放查詢</button>
-    <button onclick="toggleQuery(false)">❌ 關閉查詢</button>
-  </div>
+  <!-- 控制台畫面 -->
+  <div id="console">
+    <div>
+      <label>起始號碼：</label>
+      <input id="start" type="number" min="0" />
+      <label>結束號碼：</label>
+      <input id="end" type="number" min="0" />
+      <button onclick="updateRange()">設定範圍</button>
+    </div>
 
-  <div id="message"></div>
+    <div style="margin-top:20px;">
+      <button onclick="toggleQuery(true)">✅ 開放查詢</button>
+      <button onclick="toggleQuery(false)">❌ 關閉查詢</button>
+    </div>
+
+    <div id="message"></div>
+  </div>
 
   <script>
-    async function updateRange() {
-      const start = parseInt(document.getElementById('start').value);
-      const end = parseInt(document.getElementById('end').value);
+    let token = "";
 
-      if (isNaN(start) || isNaN(end)) {
-        document.getElementById('message').innerText = '請輸入有效數字';
-        return;
-      }
-      if (start > end) {
-        document.getElementById('message').innerText = '起始號碼不能大於結束號碼';
-        return;
-      }
+    const backend = "https://lyminnn-calling-system.onrender.com";
 
+    async function login() {
+      const password = document.getElementById("password").value;
       try {
-        const res = await fetch('https://lyminnn-calling-system.onrender.com/update', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ start, end })
+        const res = await fetch(`${backend}/auth`, {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ password }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.token) {
+          token = data.token;
+          document.getElementById("login-box").style.display = "none";
+          document.getElementById("console").style.display = "block";
+          document.getElementById("message").innerText = "✅ 登入成功";
+        } else {
+          document.getElementById("login-msg").innerText = "❌ 密碼錯誤";
+        }
+      } catch (err) {
+        document.getElementById("login-msg").innerText = "❌ 登入失敗";
+      }
+    }
+
+    async function updateRange() {
+      const start = parseInt(document.getElementById("start").value);
+      const end = parseInt(document.getElementById("end").value);
+      if (isNaN(start) || isNaN(end) || start > end) {
+        document.getElementById("message").innerText = "❗ 請輸入有效號碼範圍";
+        return;
+      }
+      try {
+        const res = await fetch(`${backend}/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ start, end }),
         });
         if (res.ok) {
-          document.getElementById('message').innerText = '✅ 叫號範圍已更新';
+          document.getElementById("message").innerText = "✅ 叫號範圍已更新";
         } else {
-          document.getElementById('message').innerText = '❌ 設定失敗';
+          document.getElementById("message").innerText = "❌ 更新失敗（未授權或錯誤）";
         }
       } catch {
-        document.getElementById('message').innerText = '❌ 網路錯誤';
+        document.getElementById("message").innerText = "❌ 連線錯誤";
       }
     }
 
     async function toggleQuery(state) {
       try {
-        const res = await fetch('https://lyminnn-calling-system.onrender.com/toggle_query', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ open: state })
+        const res = await fetch(`${backend}/toggle_query`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ open: state }),
         });
-        const msg = state ? '✅ 查詢功能已開啟' : '🔒 查詢功能已關閉';
-        document.getElementById('message').innerText = msg;
+        if (res.ok) {
+          const msg = state ? "✅ 查詢已開啟" : "❌ 查詢已關閉";
+          document.getElementById("message").innerText = msg;
+        } else {
+          document.getElementById("message").innerText = "❌ 操作失敗（未授權）";
+        }
       } catch {
-        document.getElementById('message').innerText = '❌ 操作失敗';
+        document.getElementById("message").innerText = "❌ 無法連線後端";
       }
     }
   </script>

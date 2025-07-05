@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -10,6 +11,16 @@ query_open = True
 # 起始與結束號碼
 start_num = 0
 end_num = 0
+
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
+
+@app.route('/auth', methods=['POST'])
+def auth():
+    data = request.get_json()
+    if data.get("password") == ADMIN_PASSWORD:
+        return jsonify({"success": True, "token": "your_token"})
+    return jsonify({"success": False}), 401
+
 
 @app.route('/')
 def home():
