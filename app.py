@@ -28,10 +28,9 @@ def home():
 
 @app.route('/status')
 def get_status():
-    global query_open, start_num, end_num
     if not query_open:
-        return jsonify({'disabled': True})
-    return jsonify({'start': start_num, 'end': end_num})
+        return jsonify({"query_open": False})
+    return jsonify({"query_open": True, "start": start_num, "end": end_num})
 
 @app.route('/update', methods=['POST'])
 def update_range():

@@ -85,7 +85,7 @@
         const res = await fetch("https://lyminnn-calling-system.onrender.com/status");
         const data = await res.json();
 
-        if (data.disabled) {
+        if (data.query_open === false) {
           document.getElementById("range").innerText = "🔒 目前暫不開放查詢，請稍後再試";
           document.getElementById("lastUpdate").innerText = "";
         } else {
