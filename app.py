@@ -6,7 +6,7 @@ app = Flask(__name__)
 CORS(app)
 
 # 全域變數：預設開啟查詢
-query_open = True
+query_open = False
 
 # 起始與結束號碼
 start_num = 0
