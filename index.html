@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>哩咪 lyminnn 叫號系統</title>
   <style>
     body {
@@ -12,7 +12,6 @@
       margin: 0;
       padding: 0;
     }
-
     header {
       background-color: #f2a6b3;
       color: white;
@@ -20,25 +19,26 @@
       font-size: 2em;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
-
     h2 {
       margin-top: 30px;
       font-size: 1.8em;
       color: #333;
     }
-
     #range {
-    font-size: 3em;
-    color: #d95f76;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 15px;
-    background-color: #fff4f6;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    display: inline-block;
+      font-size: 3em;
+      color: #d95f76;
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 15px;
+      background-color: #fff4f6;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: inline-block;
     }
-
-    /* 手機螢幕 */
+    #lastUpdate {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #999;
+    }
     @media (max-width: 480px) {
       #range {
         font-size: 2em;
@@ -52,8 +52,6 @@
         font-size: 1.4em;
       }
     }
-
-    /* 平板螢幕 */
     @media (min-width: 481px) and (max-width: 768px) {
       #range {
         font-size: 2.5em;
@@ -66,12 +64,6 @@
       h2 {
         font-size: 1.6em;
       }
-    }
-
-    footer {
-      margin-top: 40px;
-      color: #999;
-      font-size: 0.9em;
     }
   </style>
 </head>
@@ -92,42 +84,37 @@
       try {
         const res = await fetch("https://lyminnn-callings-ystem.onrender.com/status");
         const data = await res.json();
-        document.getElementById("range").innerText = `${data.start} 號 ~ ${data.end} 號`;
-        document.getElementById("lastUpdate").innerText = `最後更新時間：${formatTime(new Date())}`;
-      } catch (error) {
-        document.getElementById("range").innerText = "連線錯誤，請刷新頁面";
+
+        if (data.disabled) {
+          document.getElementById("range").innerText = "🔒 目前暫不開放查詢，請稍後再試";
+          document.getElementById("lastUpdate").innerText = "";
+        } else {
+          document.getElementById("range").innerText = `${data.start} 號 ~ ${data.end} 號`;
+          document.getElementById("lastUpdate").innerText = `最後更新時間：${formatTime(new Date())}`;
+        }
+      } catch {
+        document.getElementById("range").innerText = "❌ 無法取得資料，請稍後重試";
+        document.getElementById("lastUpdate").innerText = "";
       }
     }
 
-    // 頁面載入時先呼叫一次
-    fetchStatus();
-
-    // 定義定時器 ID
     let intervalId = null;
 
-    // 當分頁可見時，馬上更新一次，並啟動每60秒更新
     function handleVisibilityChange() {
-        if (document.visibilityState === "visible") {
-        fetchStatus(); // 馬上更新一次
-
-        // 清除舊的定時器，避免重複
+      if (document.visibilityState === "visible") {
+        fetchStatus();
         if (intervalId) clearInterval(intervalId);
-
-        // 設定每60秒更新一次
         intervalId = setInterval(fetchStatus, 60000);
-        } else {
-        // 分頁不可見時，停止定時更新，節省資源
+      } else {
         if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
+          clearInterval(intervalId);
+          intervalId = null;
         }
-        }
+      }
     }
 
-    // 監聽分頁可見狀態改變
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // 頁面載入時執行一次
+    fetchStatus();
     handleVisibilityChange();
   </script>
 </body>

@@ -33,18 +33,18 @@
       width: 80px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      margin-right: 20px;
+      margin-right: 10px;
     }
 
     button {
-      font-size: 1.2em;
+      font-size: 1.1em;
       background-color: #d95f76;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 15px;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      margin: 5px;
     }
 
     button:hover {
@@ -57,43 +57,20 @@
       color: #333;
     }
 
-    /* 手機螢幕 */
     @media (max-width: 480px) {
       header {
         font-size: 1.5em;
         padding: 15px 10px;
       }
-      label, input[type="number"], button {
-        font-size: 1em;
-        margin: 5px 0;
+      input, button {
         width: 100%;
-      }
-      input[type="number"] {
-        width: auto;
-      }
-      button {
-        width: 100%;
-        padding: 12px 0;
-      }
-    }
-
-    /* 平板螢幕 */
-    @media (min-width: 481px) and (max-width: 768px) {
-      header {
-        font-size: 1.7em;
-        padding: 18px 10px;
-      }
-      label, input[type="number"], button {
-        font-size: 1.1em;
-      }
-      input[type="number"] {
-        width: 100px;
+        margin: 10px 0;
       }
     }
   </style>
 </head>
 <body>
-  <header>🎪 哩咪 lyminnn 叫號系統 - 管理</header>
+  <header>🎪 哩咪 lyminnn 管理後台</header>
 
   <div>
     <label for="start">起始號碼：</label>
@@ -101,6 +78,11 @@
     <label for="end">結束號碼：</label>
     <input id="end" type="number" min="0" />
     <button onclick="updateRange()">設定範圍</button>
+  </div>
+
+  <div style="margin-top: 20px;">
+    <button onclick="toggleQuery(true)">✅ 開放查詢</button>
+    <button onclick="toggleQuery(false)">❌ 關閉查詢</button>
   </div>
 
   <div id="message"></div>
@@ -123,15 +105,29 @@
         const res = await fetch('https://lyminnn-callings-ystem.onrender.com/update', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({start, end})
+          body: JSON.stringify({ start, end })
         });
         if (res.ok) {
-          document.getElementById('message').innerText = '設定成功！';
+          document.getElementById('message').innerText = '✅ 叫號範圍已更新';
         } else {
-          document.getElementById('message').innerText = '設定失敗，請稍後重試';
+          document.getElementById('message').innerText = '❌ 設定失敗';
         }
       } catch {
-        document.getElementById('message').innerText = '網路錯誤，請稍後再試';
+        document.getElementById('message').innerText = '❌ 網路錯誤';
+      }
+    }
+
+    async function toggleQuery(state) {
+      try {
+        const res = await fetch('https://lyminnn-callings-ystem.onrender.com/toggle_query', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ open: state })
+        });
+        const msg = state ? '✅ 查詢功能已開啟' : '🔒 查詢功能已關閉';
+        document.getElementById('message').innerText = msg;
+      } catch {
+        document.getElementById('message').innerText = '❌ 操作失敗';
       }
     }
   </script>
