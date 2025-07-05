@@ -107,7 +107,7 @@
       <input id="start" type="number" min="0" />
       <label>結束號碼：</label>
       <input id="end" type="number" min="0" />
-      <button onclick="updateRange()">設定範圍</button>
+      <button onclick="updateRangeAndOpen()">設定範圍</button>
     </div>
 
     <div style="margin-top:20px;">
@@ -166,6 +166,34 @@
         }
       } catch (err) {
         document.getElementById("login-msg").innerText = "❌ 登入失敗";
+      }
+    }
+
+    async function updateRangeAndOpen() {
+      const start = parseInt(document.getElementById("start").value);
+      const end = parseInt(document.getElementById("end").value);
+      if (isNaN(start) || isNaN(end) || start > end) {
+        document.getElementById("message").innerText = "❗ 請輸入有效號碼範圍";
+        return;
+      }
+      try {
+        const res = await fetch(`${backend}/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ start, end }),
+        });
+        if (res.ok) {
+          // 設定範圍成功後，自動開放查詢
+          await toggleQuery(true);
+          document.getElementById("message").innerText = "✅ 叫號範圍已更新並開放查詢";
+        } else {
+          document.getElementById("message").innerText = "❌ 更新失敗（未授權或錯誤）";
+        }
+      } catch {
+        document.getElementById("message").innerText = "❌ 連線錯誤";
       }
     }
 
