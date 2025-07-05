@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>哩咪 lyminnn 叫號後台</title>
+  <!-- 引入 Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     body {
       font-family: "Microsoft JhengHei", sans-serif;
@@ -47,6 +49,32 @@
       margin-top: 20px;
       font-size: 1em;
     }
+    
+    /* 密碼輸入框容器樣式 */
+    .password-container {
+      position: relative;
+      display: inline-block;
+      margin: 5px;
+    }
+    
+    #password {
+      padding-right: 40px; /* 為眼睛圖示留出空間 */
+    }
+    
+    /* 眼睛圖示樣式 */
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+      font-size: 1.2em;
+    }
+    
+    .password-toggle:hover {
+      color: #d95f76;
+    }
   </style>
 </head>
 <body>
@@ -55,7 +83,11 @@
   <!-- 登入畫面 -->
   <div id="login-box">
     <h2>🔐 請輸入管理密碼</h2>
-    <input type="password" id="password" placeholder="請輸入密碼" />
+    <div class="password-container">
+      <input type="password" id="password" placeholder="請輸入密碼" onkeypress="handleKeyPress(event)" />
+      <i class="fas fa-eye-slash password-toggle" id="password-toggle" onclick="togglePassword()"></i>
+    </div>
+    <br>
     <button onclick="login()">登入</button>
     <div id="login-msg" style="color:red;"></div>
   </div>
@@ -82,6 +114,29 @@
     let token = "";
 
     const backend = "https://lyminnn-calling-system.onrender.com";
+
+    // 處理按鍵事件
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        login();
+      }
+    }
+
+    // 切換密碼顯示/隱藏功能
+    function togglePassword() {
+      const passwordInput = document.getElementById("password");
+      const toggleIcon = document.getElementById("password-toggle");
+      
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+      } else {
+        passwordInput.type = "password";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+      }
+    }
 
     async function login() {
       const password = document.getElementById("password").value;
